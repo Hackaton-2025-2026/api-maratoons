@@ -1,5 +1,7 @@
 // Contrôleur pour les utilisateurs
 const User = require('../models/User');
+const userService = require('../services/user/userService');
+const jwtService = require('../services/jwt/jwtService');
 
 // Récupérer tous les utilisateurs
 exports.getAllUsers = async (req, res) => {
@@ -25,13 +27,12 @@ exports.getUserById = async (req, res) => {
 };
 
 // Créer un nouvel utilisateur
-exports.createUser = async (req, res) => {
+exports.register = async (req, res) => {
   try {
-    const user = new User(req.body);
-    await user.save();
-    res.status(201).json(user);
+      const result = await userService.createUser(req.body);
+      res.status(201).json(result);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+      res.status(400).json({ error: error.message });
   }
 };
 
@@ -64,4 +65,22 @@ exports.deleteUser = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.login = async (req, res) => {
+    try{
+        const { email, password } = req.body;
+        const user = await userService.findUserByEmail(email);
+        const result = await userService.checkPassword(user, password)
+
+        if(result) {
+            const token = await jwtService.createToken(user);
+            return res.status(200).json({token})
+        }else{
+            return res.status(200).json({message: "password non correspondant"})
+        }
+
+    }catch(error){
+        res.status(500).json({ error: error.message });
+    }
+}
 
