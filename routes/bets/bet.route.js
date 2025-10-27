@@ -2,7 +2,7 @@
 
 const express = require('express');
 const router = express.Router();
-const betController = require('../../controllers/betController');
+const betController = require('../../controllers/bet.controller');
 
 // Routes CRUD pour les paris
 router.get('/', betController.getAllBets);

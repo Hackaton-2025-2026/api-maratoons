@@ -1,5 +1,7 @@
 // Contrôleur pour les utilisateurs
 const User = require('../models/User');
+const User_bet = require('../models/User_bet');
+const Bets = require('../models/Bets');
 const userService = require('../services/user/user.service');
 const jwtService = require('../services/jwt/jwt.service');
 
@@ -84,4 +86,115 @@ exports.login = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 }
+
+// Récupérer mes propres paris
+exports.getMyBets = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    const userBets = await User_bet.find({ user_id: userId })
+      .populate('user_id bet_id')
+      .sort({ createdAt: -1 });
+    res.json(userBets);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Créer un pari pour l'utilisateur connecté
+exports.createBet = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    // Vérifier que les champs requis sont présents
+    if (!req.body.bet_id) {
+      return res.status(400).json({ error: 'Le champ bet_id est requis' });
+    }
+
+    if (!req.body.solde) {
+      return res.status(400).json({ error: 'Le champ solde est requis' });
+    }
+
+    // Récupérer l'utilisateur
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'Utilisateur non trouvé' });
+    }
+
+    // Vérifier que le pari existe
+    const bet = await Bets.findById(req.body.bet_id);
+    if (!bet) {
+      return res.status(404).json({ error: 'Pari non trouvé' });
+    }
+
+    // Vérifier que l'utilisateur a assez de solde
+    if (user.solde < req.body.solde) {
+      return res.status(400).json({ 
+        error: 'Solde insuffisant',
+        solde_disponible: user.solde,
+        solde_demande: req.body.solde
+      });
+    }
+
+    // Calculer les gains potentiels (solde * cote)
+    const gainsPotentiels = req.body.solde * bet.cote;
+
+    // Créer le pari utilisateur
+    const userBet = new User_bet({
+      user_id: userId,
+      bet_id: req.body.bet_id,
+      solde: req.body.solde,
+      position_runner: req.body.position_runner
+    });
+    await userBet.save();
+
+    // Déduire le solde de l'utilisateur
+    user.solde -= req.body.solde;
+    await user.save();
+
+    await userBet.populate('user_id bet_id');
+    
+    // Ajouter les informations sur le pari
+    const response = {
+      ...userBet.toObject(),
+      cote: bet.cote,
+      gains_potentiels: gainsPotentiels
+    };
+    
+    res.status(201).json(response);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// Supprimer un de mes paris
+exports.deleteMyBet = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const betId = req.params.betId;
+
+    // Récupérer le pari
+    const userBet = await User_bet.findById(betId);
+    if (!userBet) {
+      return res.status(404).json({ error: 'Pari non trouvé' });
+    }
+
+    // Vérifier que le pari appartient à l'utilisateur
+    if (userBet.user_id.toString() !== userId) {
+      return res.status(403).json({ error: 'Vous ne pouvez pas supprimer ce pari' });
+    }
+
+    // Rembourser l'utilisateur
+    const user = await User.findById(userId);
+    if (user) {
+      user.solde += userBet.solde;
+      await user.save();
+    }
+
+    await User_bet.findByIdAndDelete(betId);
+    res.json({ message: 'Pari supprimé avec succès' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
