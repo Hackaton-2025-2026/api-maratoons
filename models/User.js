@@ -8,6 +8,12 @@ const userSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+    password: {
+      type: String,
+        required: true,
+        trim: true,
+        minlength: 6
+    },
   email: {
     type: String,
     required: true,
@@ -15,14 +21,19 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     trim: true
   },
-  age: {
+  solde:{
     type: Number,
-    min: 0
+    default: 1
   },
   createdAt: {
     type: Date,
     default: Date.now
-  }
+  },
+    updatedAt: {
+      type: Date,
+        default: Date.now
+
+    }
 });
 
 const User = mongoose.model('User', userSchema);
