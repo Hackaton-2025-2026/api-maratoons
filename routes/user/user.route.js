@@ -2,7 +2,7 @@
 
 const express = require('express');
 const router = express.Router();
-const userController = require('../../controllers/userController');
+const userController = require('../../controllers/user.controller');
 
 // Routes CRUD pour les utilisateurs
 router.get('/', userController.getAllUsers);

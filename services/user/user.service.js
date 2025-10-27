@@ -11,7 +11,6 @@ async function createUser(user) {
 
 async function findUserByEmail(email) {
     const user = await User.findOne({ email: email });
-
     if (!user) {
         return null;
     }

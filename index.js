@@ -2,11 +2,11 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const connectDB = require('./config/database');
-const userRoutes = require('./routes/user/userRoutes');
+const userRoutes = require('./routes/user/user.route');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
+const authMiddleware = require('./middlewares/auth.middleware');
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -15,7 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 connectDB();
 
 // Route "/"
-app.get('/', (req, res) => {
+app.get('/',(req, res) => {
   res.json({
     message: 'API Marathon - Bienvenue!',
     version: '1.0.0',
@@ -24,12 +24,13 @@ app.get('/', (req, res) => {
 });
 
 // Route "/api/health"
-app.get('/api/health', (req, res) => {
+app.get('/api/health', authMiddleware.verifyToken, (req, res) => {
   res.json({
     status: 'OK',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+      user: req.user
   });
 });
 

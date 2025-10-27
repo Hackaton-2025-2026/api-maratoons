@@ -8,7 +8,8 @@ services:
       - mongo
     volumes:
       - .:/usr/src/app
-    command: npm start
+    command: npx nodemon index.js
+    restart: always
 
   mongo:
     image: mongo:6

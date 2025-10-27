@@ -21,6 +21,13 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     trim: true
   },
+    role: {
+      type: String,
+        required: true,
+        trim: true,
+        enum: ['user', 'admin'],
+        default: 'user'
+    },
   solde:{
     type: Number,
     default: 1

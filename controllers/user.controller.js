@@ -1,7 +1,7 @@
 // Contrôleur pour les utilisateurs
 const User = require('../models/User');
-const userService = require('../services/user/userService');
-const jwtService = require('../services/jwt/jwtService');
+const userService = require('../services/user/user.service');
+const jwtService = require('../services/jwt/jwt.service');
 
 // Récupérer tous les utilisateurs
 exports.getAllUsers = async (req, res) => {
@@ -20,6 +20,7 @@ exports.getUserById = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: 'Utilisateur non trouvé' });
     }
+
     res.json(user);
   } catch (error) {
     res.status(500).json({ error: error.message });
