@@ -4,7 +4,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const connectDB = require('./config/database');
 const userRoutes = require('./routes/user/user.route');
-const betRoutes = require('./routes/bets/bet.route');
+const betRoutes = require('./routes/bets/betRoutes');
+const userBetRoutes = require('./routes/user_bet/userBetRoutes');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const authMiddleware = require('./middlewares/auth.middleware');
@@ -39,6 +41,8 @@ app.get('/api/health', authMiddleware.verifyToken, (req, res) => {
 // Routes
 app.use('/api/users', userRoutes);
 app.use('/api/bets', betRoutes);
+app.use('/api/user-bets', userBetRoutes);
+app.use('/api/groups', groupRoutes);
 
 // Middleware de gestion des erreurs
 app.use((err, req, res, next) => {
