@@ -1,14 +1,14 @@
 require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
 const connectDB = require('./config/database');
 const userRoutes = require('./routes/user/user.route');
-const betRoutes = require('./routes/bets/betRoutes');
-const userBetRoutes = require('./routes/user_bet/userBetRoutes');
-
+const betRoutes = require('./routes/bets/bet.route');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const authMiddleware = require('./middlewares/auth.middleware');
+
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -39,7 +39,6 @@ app.get('/api/health', authMiddleware.verifyToken, (req, res) => {
 // Routes
 app.use('/api/users', userRoutes);
 app.use('/api/bets', betRoutes);
-app.use('/api/user-bets', userBetRoutes);
 
 // Middleware de gestion des erreurs
 app.use((err, req, res, next) => {

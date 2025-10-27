@@ -16,6 +16,10 @@ const betsSchema = new mongoose.Schema({
     required: true,
     min: 1
   },
+  position: {
+    type: Number,
+    min: 1
+  },
   createdAt: {
     type: Date,
     default: Date.now
