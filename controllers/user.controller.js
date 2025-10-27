@@ -30,10 +30,10 @@ exports.getUserById = async (req, res) => {
 // Créer un nouvel utilisateur
 exports.register = async (req, res) => {
   try {
-      const result = await userService.createUser(req.body);
-      res.status(201).json(result);
+    const result = await userService.createUser(req.body);
+    res.status(201).json(result);
   } catch (error) {
-      res.status(400).json({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
 };
 
@@ -68,20 +68,20 @@ exports.deleteUser = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-    try{
-        const { email, password } = req.body;
-        const user = await userService.findUserByEmail(email);
-        const result = await userService.checkPassword(user, password)
+  try {
+    const { email, password } = req.body;
+    const user = await userService.findUserByEmail(email);
+    const result = await userService.checkPassword(user, password)
 
-        if(result) {
-            const token = await jwtService.createToken(user);
-            return res.status(200).json({token})
-        }else{
-            return res.status(200).json({message: "password non correspondant"})
-        }
-
-    }catch(error){
-        res.status(500).json({ error: error.message });
+    if (result) {
+      const token = await jwtService.createToken(user);
+      return res.status(200).json({ token })
+    } else {
+      return res.status(200).json({ message: "password non correspondant" })
     }
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 }
 
