@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
+const connectDB = require('./config/database');
+const userRoutes = require('./routes/user/userRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -10,18 +12,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Connexion à MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/api-maratoons', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => {
-  console.log('✅ Connexion à MongoDB réussie');
-})
-.catch((error) => {
-  console.error('❌ Erreur de connexion à MongoDB:', error);
-});
+connectDB();
 
-// Route d'accueil
+// Route "/"
 app.get('/', (req, res) => {
   res.json({
     message: 'API Marathon - Bienvenue!',
@@ -30,14 +23,18 @@ app.get('/', (req, res) => {
   });
 });
 
-// Route de test
+// Route "/api/health"
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'OK',
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    uptime: process.uptime(),
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
   });
 });
+
+// Routes
+app.use('/api/users', userRoutes);
 
 // Middleware de gestion des erreurs
 app.use((err, req, res, next) => {
