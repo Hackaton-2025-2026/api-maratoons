@@ -8,12 +8,12 @@ const userSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
-    password: {
-      type: String,
-        required: true,
-        trim: true,
-        minlength: 6
-    },
+  password: {
+    type: String,
+    required: true,
+    trim: true,
+    minlength: 6
+  },
   email: {
     type: String,
     required: true,
@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     trim: true
   },
-  solde:{
+  solde: {
     type: Number,
     default: 1
   },
@@ -29,11 +29,11 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
-    updatedAt: {
-      type: Date,
-        default: Date.now
+  updatedAt: {
+    type: Date,
+    default: Date.now
 
-    }
+  }
 });
 
 const User = mongoose.model('User', userSchema);
