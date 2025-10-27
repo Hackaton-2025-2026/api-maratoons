@@ -2,7 +2,9 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const connectDB = require('./config/database');
-const userRoutes = require('./routes/user/user.route');
+const userRoutes = require('./routes/user/userRoutes');
+const betRoutes = require('./routes/bets/betRoutes');
+const userBetRoutes = require('./routes/user_bet/userBetRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -36,6 +38,8 @@ app.get('/api/health', authMiddleware.verifyToken, (req, res) => {
 
 // Routes
 app.use('/api/users', userRoutes);
+app.use('/api/bets', betRoutes);
+app.use('/api/user-bets', userBetRoutes);
 
 // Middleware de gestion des erreurs
 app.use((err, req, res, next) => {
