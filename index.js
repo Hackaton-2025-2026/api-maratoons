@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const connectDB = require('./config/database');
 const userRoutes = require('./routes/user/user.route');
+const groupRoutes = require('./routes/groups/group.route');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -36,6 +37,7 @@ app.get('/api/health', authMiddleware.verifyToken, (req, res) => {
 
 // Routes
 app.use('/api/users', userRoutes);
+app.use('/api/groups', groupRoutes);
 
 // Middleware de gestion des erreurs
 app.use((err, req, res, next) => {
