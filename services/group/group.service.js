@@ -25,6 +25,20 @@ async function joinGroup(user_id, code){
     const group = await Group.findOne({
         code: code
     });
+
+    if(user_id === group.owner_id){
+        return "The owner is already in the group.";
+    }
+
+    const alreadyInGroup = await JoinGroup.findOne({
+        user_id,
+        group_id: group._id
+    });
+
+    if(alreadyInGroup){
+        return "User is already in the group.";
+    }
+
     const group_id = group._id;
     const newJoin = new JoinGroup({user_id, group_id})
     await newJoin.save();
