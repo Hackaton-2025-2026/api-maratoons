@@ -4,7 +4,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const connectDB = require('./config/database');
 const userRoutes = require('./routes/user/user.route');
-const betRoutes = require('./routes/bets/betRoutes');
+const betRoutes = require('./routes/bets/bet.route');
+const groupRoutes = require('./routes/groups/group.route');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
