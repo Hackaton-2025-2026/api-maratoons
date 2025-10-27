@@ -1,0 +1,34 @@
+{
+  "name": "api-maratoons",
+  "version": "1.0.0",
+  "description": "API Marathon avec Express et Node.js",
+  "keywords": [
+    "express",
+    "api",
+    "nodejs"
+  ],
+  "homepage": "https://github.com/Hackaton-2025-2026/api-maratoons#readme",
+  "bugs": {
+    "url": "https://github.com/Hackaton-2025-2026/api-maratoons/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hackaton-2025-2026/api-maratoons.git"
+  },
+  "license": "MIT",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "express": "^4.21.2",
+    "mongoose": "^8.19.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
