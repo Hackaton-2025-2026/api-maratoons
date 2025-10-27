@@ -17,7 +17,6 @@ const groupSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
-        lowercase: true,
         trim: true
     },
     createdAt: {
@@ -27,7 +26,6 @@ const groupSchema = new mongoose.Schema({
     updatedAt: {
         type: Date,
         default: Date.now
-
     }
 });
 

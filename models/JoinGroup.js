@@ -24,7 +24,7 @@ const joinGroupSchema = new mongoose.Schema({
     }
 });
 
-const JoinGroup = mongoose.model('Group', joinGroupSchema);
+const JoinGroup = mongoose.model('JoinGroup', joinGroupSchema);
 
 module.exports = JoinGroup;
 

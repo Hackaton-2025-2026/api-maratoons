@@ -1,27 +1,55 @@
 const groupService = require('../services/group/group.service');
 
-const createGroup = (req, res) => {
+const getAllUserByGroup = async (req, res) => {
     try{
-        const newGroup = groupService.createGroup(req.body);
+        const newGroup = await groupService.getAllUsersByGroup(req.params.id);
+        return res.status(200).send(newGroup);
+    }catch (error){
+        res.status(500).send({error: error});
+    }
+}
+
+const getAllGroup = async (req, res) => {
+    try{
+        const newGroup = await groupService.getAllGroup(req.params.id);
+        return res.status(200).send(newGroup);
+    }catch (error){
+        res.status(500).send({error: error});
+    }
+}
+
+
+const createGroup = async (req, res) => {
+    try{
+        const newGroup = await groupService.createGroup(req.body.name, req.user.id);
         return res.status(201).send(newGroup);
     }catch (error){
         res.status(500).send({error: error});
     }
 }
 
-const getAllUserByGroup = (req, res) => {
+const joinGroup = async (req, res) => {
     try{
-        const newGroup = groupService.createGroup(req.body);
+        const newGroup = await groupService.joinGroup(req.user.id,req.params.code);
         return res.status(201).send(newGroup);
     }catch (error){
         res.status(500).send({error: error});
     }
 }
 
-const joinGroup = (req, res) => {
+const leaveGroup = async (req, res) => {
     try{
-        const newGroup = groupService.joinGroup(req.body.group_id, req.body.user_id);
-        return res.status(201).send(newGroup);
+        const result = await groupService.leaveGroup(req.user.id, req.params.id);
+        return res.status(200).send(result);
+    }catch (error){
+        res.status(500).send({error: error});
+    }
+}
+
+const banUser = async (req, res) => {
+    try{
+        const result = await groupService.banUser(req.params.id,req.user.id, req.body.userToBan);
+        return res.status(200).send(result);
     }catch (error){
         res.status(500).send({error: error});
     }
@@ -30,5 +58,8 @@ const joinGroup = (req, res) => {
 module.exports = {
     createGroup,
     getAllUserByGroup,
-    joinGroup
+    joinGroup,
+    leaveGroup,
+    banUser,
+    getAllGroup
 }
