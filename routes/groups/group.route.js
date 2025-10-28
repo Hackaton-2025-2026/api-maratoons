@@ -189,4 +189,79 @@ router.post('/:id/leave', groupController.leaveGroup);
  */
 router.post('/:id/ban', groupController.banUser);
 
+/**
+ * @swagger
+ * /api/groups/{id}:
+ *  put:
+ *   summary: Modifier un groupe
+ *   tags: [Groupes]
+ *   security:
+ *     - bearerAuth: []
+ *     parameters:
+ *     - in: path
+ *     name: id
+ *     required: true
+ *     schema:
+ *     type: string
+ *     requestBody:
+ *     required: true
+ *     content:
+ *     application/json:
+ *    responses:
+ *       200:
+ *         description: Groupe modifier avec succès
+ *       401:
+ *         description: Non authentifié
+ *       403:
+ *         description: Permissions insuffisantes
+ */
+router.put('/:id', groupController.updateGroup);
+
+/**
+ * @swagger
+ * /api/groups/{id}:
+ *   delete:
+ *     summary: Supprimer un groupe
+ *     tags: [Groupes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Groupe supprimé avec succès
+ *       401:
+ *         description: Non authentifié
+ *       403:
+ *         description: Permissions insuffisantes
+ */
+router.delete('/:id', groupController.deleteGroup);
+
+
+/**
+ * @swagger
+ * /api/groups/{id}:
+ *  get:
+ *  summary: Récupérer un groupe par ID
+ *   tags: [Groupes]
+ *   security:
+ *   - bearerAuth: []
+ *   parameters:
+ *   - in: path
+ *   name: id
+ *   required: true
+ *   schema:
+ *   type: string
+ *   responses:
+ *    200:
+ *     description: Détails du groupe
+ *     404:
+ *     description: Groupe non trouvé
+ */
+router.get('/details/:id', groupController.getGroupById);
+
 module.exports = router;

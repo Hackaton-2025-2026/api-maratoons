@@ -63,6 +63,33 @@ const banUser = async (req, res) => {
     }
 }
 
+const updateGroup = async (req, res) => {
+    try{
+        const updatedGroup = await groupService.updateGroup(req.params.id, req.body);
+        return res.status(200).send(updatedGroup);
+    }catch (error){
+        res.status(500).send({error: error});
+    }
+}
+
+const deleteGroup = async (req, res) => {
+    try{
+        const group = await groupService.deleteGroup(req.params.id);
+        return res.status(200).send(group);
+    }catch (error){
+        res.status(500).send({error: error});
+    }
+}
+
+const getGroupById = async (req, res) => {
+    try{
+        const group = await groupService.getGroupById(req.params.id);
+        return res.status(200).send(group);
+    }catch (error){
+        res.status(500).send({error: error});
+    }
+}
+
 module.exports = {
     createGroup,
     getAllUserByGroup,
@@ -70,5 +97,8 @@ module.exports = {
     leaveGroup,
     banUser,
     getAllGroup,
-    getRankUserByRank
+    getRankUserByRank,
+    updateGroup,
+    deleteGroup,
+    getGroupById
 }

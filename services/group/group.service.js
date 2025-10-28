@@ -57,6 +57,21 @@ async function banUser(group_id,user_id,user_id_to_ban){
     return result;
 }
 
+async function updateGroup(groupe_id, group){
+    const updatedGroup = await Group.findByIdAndUpdate(groupe_id, group, { new: true });
+    return updatedGroup;
+}
+
+async function deleteGroup(groupe_id){
+    const group = await Group.findByIdAndDelete(groupe_id);
+    return group;
+}
+
+async function getGroupById(groupe_id){
+    const group = await Group.findById(groupe_id);
+    return group;
+}
+
 async function getAllUserRankByGroup(group_id){
 
     const joinGroups = await JoinGroup.find({group_id});
@@ -79,5 +94,8 @@ module.exports = {
     leaveGroup,
     banUser,
     getAllGroup,
-    getAllUserRankByGroup
+    getAllUserRankByGroup,
+    updateGroup,
+    deleteGroup,
+    getGroupById
 }
