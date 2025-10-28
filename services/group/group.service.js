@@ -1,6 +1,6 @@
 const Group = require('../../models/Group');
 const JoinGroup = require('../../models/JoinGroup');
-
+const userService = require('../user/user.service');
 
 async function getAllUsersByGroup(group_id){
     const users = await JoinGroup.find({group_id});
@@ -63,11 +63,27 @@ async function banUser(group_id,user_id,user_id_to_ban){
     return result;
 }
 
+async function getAllUserRankByGroup(group_id){
+
+    const joinGroups = await JoinGroup.find({group_id});
+
+    let listUsers = [];
+    for(const joinGroup of joinGroups){
+        const user = await userService.findUserById(joinGroup.user_id);
+        listUsers.push(user);
+    }
+
+    listUsers = listUsers.sort((a, b) => a.solde > b.solde);
+
+    return listUsers;
+}
+
 module.exports = {
     createGroup,
     joinGroup,
     getAllUsersByGroup,
     leaveGroup,
     banUser,
-    getAllGroup
+    getAllGroup,
+    getAllUserRankByGroup
 }

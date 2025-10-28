@@ -25,8 +25,18 @@ async function checkPassword(user, password) {
     return await bcrypt.compare(password, user.password);
 }
 
+async function findUserById(id) {
+    const user = await User.findById(id);
+    if (!user) {
+        return null;
+    }
+
+    return user;
+}
+
 module.exports = {
     createUser,
     findUserByEmail,
-    checkPassword
+    checkPassword,
+    findUserById
 }

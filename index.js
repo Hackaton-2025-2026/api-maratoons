@@ -10,7 +10,7 @@ const groupRoutes = require('./routes/groups/group.route');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const authMiddleware = require('./middlewares/auth.middleware');
-
+const socketService = require('./services/socket/socket.service');
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -60,8 +60,13 @@ app.use('*', (req, res) => {
   });
 });
 
+const http = require('http');
+const server = http.createServer(app);
+
+socketService.connectSocket(server);
+
 // Démarrage du serveur
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`🚀 Serveur démarré sur le port ${PORT}`);
   console.log(`📝 API disponible sur http://localhost:${PORT}`);
 });
