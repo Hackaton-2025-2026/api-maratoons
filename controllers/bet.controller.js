@@ -1,7 +1,7 @@
 // Contrôleur pour les paris (bets)
 
 const Bets = require('../models/Bets');
-const { validateRaceAndRunner } = require('../services/race/race.service');
+const { validateRaceAndRunner, getRunnersByRace, validateRaceExists } = require('../services/race/race.service');
 
 // Récupérer tous les paris
 exports.getAllBets = async (req, res) => {
@@ -128,6 +128,106 @@ exports.getBetsByRunner = async (req, res) => {
     const bets = await Bets.find({ runner_id: runnerId });
     res.json(bets);
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Générer automatiquement les bets pour tous les runners d'une course
+exports.generateBetsForRace = async (req, res) => {
+  try {
+    const raceId = Number(req.params.raceId);
+    
+    // 1. Vérifier que la race existe et récupérer ses informations
+    const raceValidation = await validateRaceExists(raceId);
+    if (!raceValidation.exists) {
+      return res.status(404).json({ error: `Race ID ${raceId} invalide - Cette course n'existe pas` });
+    }
+    
+    const race = raceValidation.data;
+    
+    // 2. Vérifier que la race est future
+    const today = new Date();
+    const raceDate = new Date(race.startDate);
+    
+    if (raceDate <= today) {
+      return res.status(400).json({ 
+        error: 'Impossible de générer des bets pour une course passée',
+        raceDate: race.startDate
+      });
+    }
+    
+    // 3. Calculer le nombre de jours avant la course
+    const daysDifference = Math.ceil((raceDate - today) / (1000 * 60 * 60 * 24));
+    
+    // 4. Vérifier que l'on est au moins à 3 jours de la course
+    // et pas à moins de 1 jour avant
+    if (daysDifference < 3) {
+      return res.status(400).json({ 
+        error: 'Les bets doivent être créés au moins 3 jours avant la course',
+        raceDate: race.startDate,
+        daysUntilRace: daysDifference,
+        minimumDaysRequired: 3
+      });
+    }
+    
+    if (daysDifference === 1 || daysDifference === 0) {
+      return res.status(400).json({ 
+        error: 'Les bets ne peuvent pas être créés à moins de 1 jour de la course',
+        raceDate: race.startDate,
+        daysUntilRace: daysDifference
+      });
+    }
+    
+    // 5. Récupérer tous les runners de la course
+    const runnersResult = await getRunnersByRace(raceId);
+    if (!runnersResult.success) {
+      return res.status(500).json({ 
+        error: 'Erreur lors de la récupération des runners',
+        details: runnersResult.error
+      });
+    }
+    
+    const runners = runnersResult.runners;
+    if (runners.length === 0) {
+      return res.status(400).json({ error: 'Aucun runner trouvé pour cette course' });
+    }
+    
+    // 6. Créer les bets pour chaque runner
+    const createdBets = [];
+    for (const runner of runners) {
+      // Position aléatoire entre 1 et 3
+      const position = Math.floor(Math.random() * 3) + 1;
+      // Cote entre 1 et 20 (avec incrément de 1)
+      const cote = Math.floor(Math.random() * 20) + 1;
+      
+      // Vérifier si le bet n'existe pas déjà
+      const existingBet = await Bets.findOne({ 
+        race_id: raceId, 
+        runner_id: runner.id 
+      });
+      
+      if (!existingBet) {
+        const bet = new Bets({
+          race_id: raceId,
+          runner_id: runner.id,
+          position,
+          cote
+        });
+        await bet.save();
+        createdBets.push(bet);
+      }
+    }
+    
+    res.status(201).json({
+      message: `Bets générés avec succès pour la course ${race.name}`,
+      raceId,
+      totalRunners: runners.length,
+      newBetsCreated: createdBets.length,
+      bets: createdBets
+    });
+    
+  } catch (error) {
+    console.error('Erreur lors de la génération des bets:', error);
     res.status(500).json({ error: error.message });
   }
 };

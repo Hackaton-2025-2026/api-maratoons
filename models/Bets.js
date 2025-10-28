@@ -39,5 +39,3 @@ betsSchema.pre('save', function(next) {
 const Bets = mongoose.model('Bets', betsSchema);
 
 module.exports = Bets;
-
-
