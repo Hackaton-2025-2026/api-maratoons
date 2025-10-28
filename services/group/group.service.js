@@ -40,6 +40,12 @@ async function joinGroup(user_id, code){
 async function leaveGroup(user_id, group_id){
     const groupIdString = group_id.toString();
     const result = await JoinGroup.deleteOne({user_id, group_id: groupIdString});
+
+    const group = await Group.findById(group_id);
+
+    if(user_id === group.owner_id){
+        await deleteGroup(group_id);
+    }
     return result;
 }
 
