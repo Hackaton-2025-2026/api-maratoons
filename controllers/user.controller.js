@@ -43,13 +43,19 @@ exports.register = async (req, res) => {
     // Generate token for the new user
     const token = await jwtService.createToken(user);
 
-    // Set token in httpOnly cookie
-    res.cookie('auth_token', token, {
+    // Cookie settings for cross-domain (Vercel)
+    const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    });
+      secure: true, // Always true for Vercel (HTTPS)
+      sameSite: 'none', // Required for cross-domain cookies
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/' // Ensure cookie is available for all paths
+    };
+
+    // Set token in httpOnly cookie
+    res.cookie('auth_token', token, cookieOptions);
+
+    console.log('Registration successful, cookie set with options:', cookieOptions);
 
     res.status(201).json({
       message: 'User registered successfully',
@@ -103,13 +109,19 @@ exports.login = async (req, res) => {
     if (result) {
       const token = await jwtService.createToken(user);
 
-      // Set token in httpOnly cookie
-      res.cookie('auth_token', token, {
+      // Cookie settings for cross-domain (Vercel)
+      const cookieOptions = {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-      });
+        secure: true, // Always true for Vercel (HTTPS)
+        sameSite: 'none', // Required for cross-domain cookies
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        path: '/' // Ensure cookie is available for all paths
+      };
+
+      // Set token in httpOnly cookie
+      res.cookie('auth_token', token, cookieOptions);
+
+      console.log('Login successful, cookie set with options:', cookieOptions);
 
       return res.status(200).json({
         message: 'Login successful',
@@ -130,11 +142,12 @@ exports.login = async (req, res) => {
 
 exports.logout = async (req, res) => {
   try {
-    // Clear the auth cookie
+    // Clear the auth cookie with same options as when it was set
     res.clearCookie('auth_token', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+      secure: true,
+      sameSite: 'none',
+      path: '/'
     });
 
     return res.status(200).json({ message: 'Logout successful' });
