@@ -4,11 +4,11 @@ const mongoose = require('mongoose');
 
 const betsSchema = new mongoose.Schema({
   race_id: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Number,
     required: true,
   },
   runner_id: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Number,
     required: true,
   },
   cote: {

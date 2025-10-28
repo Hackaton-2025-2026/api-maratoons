@@ -5,12 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="de6c98db-ea8c-4df1-b3cb-b96704b65fa2" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/INTEGRATION_RACES_API.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ROUTES_DISPONIBLES.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/config/swagger.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/race/race.service.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controllers/bet.controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/bet.controller.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/Bets.js" beforeDir="false" afterPath="$PROJECT_DIR$/models/Bets.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/bets/bet.route.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/bets/bet.route.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/groups/group.route.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/groups/group.route.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/user/user.route.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/user/user.route.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/services/group/group.service.js" beforeDir="false" afterPath="$PROJECT_DIR$/services/group/group.service.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/user/user.service.js" beforeDir="false" afterPath="$PROJECT_DIR$/services/user/user.service.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,7 +51,7 @@
     "RunOnceActivity.git.unshallow": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultAutoModeForALLUsers.v1": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "feature/groupe",
+    "git-widget-placeholder": "Merging feature/groupe",
     "junie.onboarding.icon.badge.shown": "true",
     "last_opened_file_path": "/home/yanis/Documents/ynov/hackaton-2025-2026/api-maratoons",
     "node.js.detected.package.eslint": "true",

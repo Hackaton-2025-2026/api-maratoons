@@ -1,19 +1,26 @@
 require('dotenv').config();
 
 const express = require('express');
+const cors = require('cors');
 const mongoose = require('mongoose');
 const connectDB = require('./config/database');
 const userRoutes = require('./routes/user/user.route');
 const betRoutes = require('./routes/bets/bet.route');
 const groupRoutes = require('./routes/groups/group.route');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpecs = require('./config/swagger');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const authMiddleware = require('./middlewares/auth.middleware');
 const socketService = require('./services/socket/socket.service');
 // Middleware
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Swagger Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 
 // Connexion à MongoDB
 connectDB();
@@ -23,7 +30,8 @@ app.get('/',(req, res) => {
   res.json({
     message: 'API Marathon - Bienvenue!',
     version: '1.0.0',
-    status: 'running'
+    status: 'running',
+    documentation: `${req.protocol}://${req.get('host')}/api-docs`
   });
 });
 
