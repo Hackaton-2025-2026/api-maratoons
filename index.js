@@ -101,7 +101,13 @@ app.use('*', (req, res) => {
 const http = require('http');
 const server = http.createServer(app);
 
-socketService.connectSocket(server);
+// Only enable Socket.IO in development (not supported on Vercel serverless)
+if (process.env.NODE_ENV !== 'production') {
+  socketService.connectSocket(server);
+  console.log('🔌 Socket.IO enabled for development');
+} else {
+  console.log('⚠️ Socket.IO disabled for production (Vercel serverless)');
+}
 
 // Démarrage du serveur
 server.listen(PORT, () => {
