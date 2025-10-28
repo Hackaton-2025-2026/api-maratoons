@@ -105,9 +105,30 @@ async function validateRaceAndRunner(raceId, runnerId) {
   };
 }
 
+/**
+ * Récupérer tous les runners d'une course
+ * @param {number} raceId - ID de la race
+ * @returns {Promise<{success: boolean, runners: array, error: string|null}>}
+ */
+async function getRunnersByRace(raceId) {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/api/races/${raceId}/runners`, {
+      headers: {
+        'ngrok-skip-browser-warning': 'true'
+      },
+      timeout: 5000
+    });
+    return { success: true, runners: response.data, error: null };
+  } catch (error) {
+    console.error(`Erreur lors de la récupération des runners pour la race ${raceId}:`, error.message);
+    return { success: false, runners: [], error: error.message };
+  }
+}
+
 module.exports = {
   validateRaceExists,
   validateRunnerExists,
-  validateRaceAndRunner
+  validateRaceAndRunner,
+  getRunnersByRace
 };
 

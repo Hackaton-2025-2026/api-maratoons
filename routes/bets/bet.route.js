@@ -3,6 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const betController = require('../../controllers/bet.controller');
+const authMiddleware = require('../../middlewares/auth.middleware');
 
 /**
  * @swagger
@@ -160,5 +161,30 @@ router.put('/:id', betController.updateBet);
  *         description: Pari non trouvé
  */
 router.delete('/:id', betController.deleteBet);
+
+/**
+ * @swagger
+ * /api/bets/generate/{raceId}:
+ *   post:
+ *     summary: Générer automatiquement les bets pour tous les runners d'une course
+ *     tags: [Paris]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: raceId
+ *         required: true
+ *         schema:
+ *           type: number
+ *         example: 47
+ *     responses:
+ *       201:
+ *         description: Bets générés avec succès
+ *       400:
+ *         description: Course passée ou mauvais timing
+ *       404:
+ *         description: Course non trouvée
+ */
+router.post('/generate/:raceId', authMiddleware.verifyToken, betController.generateBetsForRace);
 
 module.exports = router;
