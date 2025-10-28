@@ -32,18 +32,24 @@ exports.getUserById = async (req, res) => {
 // Créer un nouvel utilisateur
 exports.register = async (req, res) => {
   try {
-    const result = await userService.createUser(req.body);
-    const user = result.user;
+    // Map 'name' to 'nom' for compatibility
+    const userData = {
+      ...req.body,
+      nom: req.body.nom || req.body.name || req.body.username
+    };
+
+    const user = await userService.createUser(userData);
+
+    // Generate token for the new user
+    const token = await jwtService.createToken(user);
 
     // Set token in httpOnly cookie
-    if (result.token) {
-      res.cookie('auth_token', result.token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-      });
-    }
+    res.cookie('auth_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
 
     res.status(201).json({
       message: 'User registered successfully',
