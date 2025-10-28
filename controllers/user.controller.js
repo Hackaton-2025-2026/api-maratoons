@@ -105,14 +105,18 @@ exports.getMyBets = async (req, res) => {
 exports.createBet = async (req, res) => {
   try {
     const userId = req.user.id;
+    const { bet_id, amount, solde } = req.body;
     
-    // Vérifier que les champs requis sont présents
-    if (!req.body.bet_id) {
+    // Vérifier que bet_id est présent
+    if (!bet_id) {
       return res.status(400).json({ error: 'Le champ bet_id est requis' });
     }
 
-    if (!req.body.solde) {
-      return res.status(400).json({ error: 'Le champ solde est requis' });
+    // Le montant peut être "amount" ou "solde"
+    const montant = amount || solde;
+    
+    if (!montant) {
+      return res.status(400).json({ error: 'Le montant (amount ou solde) est requis' });
     }
 
     // Récupérer l'utilisateur
@@ -122,34 +126,53 @@ exports.createBet = async (req, res) => {
     }
 
     // Vérifier que le pari existe
-    const bet = await Bets.findById(req.body.bet_id);
+    const bet = await Bets.findById(bet_id);
     if (!bet) {
       return res.status(404).json({ error: 'Pari non trouvé' });
     }
 
+    // Vérifier que la course associée au bet est future
+    const { validateRaceExists } = require('../services/race/race.service');
+    const raceValidation = await validateRaceExists(bet.race_id);
+    
+    if (raceValidation.exists) {
+      const race = raceValidation.data;
+      const raceDate = new Date(race.startDate);
+      const today = new Date();
+      
+      // Vérifier que la course est dans le futur
+      if (raceDate <= today) {
+        return res.status(400).json({ 
+          error: 'Impossible de parier sur une course passée ou en cours',
+          raceDate: race.startDate,
+          raceName: race.name,
+          details: 'Les paris ne sont possibles que pour les courses futures'
+        });
+      }
+    }
+
     // Vérifier que l'utilisateur a assez de solde
-    if (user.solde < req.body.solde) {
+    if (user.solde < montant) {
       return res.status(400).json({ 
         error: 'Solde insuffisant',
         solde_disponible: user.solde,
-        solde_demande: req.body.solde
+        solde_demande: montant
       });
     }
 
     // Calculer les gains potentiels (solde * cote)
-    const gainsPotentiels = req.body.solde * bet.cote;
+    const gainsPotentiels = montant * bet.cote;
 
     // Créer le pari utilisateur
     const userBet = new User_bet({
       user_id: userId,
-      bet_id: req.body.bet_id,
-      solde: req.body.solde,
-      position_runner: req.body.position_runner
+      bet_id: bet_id,
+      solde: montant
     });
     await userBet.save();
 
     // Déduire le solde de l'utilisateur
-    user.solde -= req.body.solde;
+    user.solde -= montant;
     await user.save();
 
     await userBet.populate('user_id bet_id');

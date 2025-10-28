@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
   },
   solde: {
     type: Number,
-    default: 1
+    default: 90
   },
   createdAt: {
     type: Date,
@@ -32,7 +32,6 @@ const userSchema = new mongoose.Schema({
   updatedAt: {
     type: Date,
     default: Date.now
-
   }
 });
 
