@@ -93,7 +93,8 @@ exports.getMyBets = async (req, res) => {
     const userId = req.user.id;
     
     const userBets = await User_bet.find({ user_id: userId })
-      .populate('user_id bet_id')
+      .populate({ path: 'user_id', model: 'User', select: 'nom email' })
+      .populate({ path: 'bet_id', model: 'Bets' })
       .sort({ createdAt: -1 });
     res.json(userBets);
   } catch (error) {
@@ -117,12 +118,6 @@ exports.createBet = async (req, res) => {
     
     if (!montant) {
       return res.status(400).json({ error: 'Le montant (amount ou solde) est requis' });
-    }
-
-    // Récupérer l'utilisateur
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ error: 'Utilisateur non trouvé' });
     }
 
     // Vérifier que le pari existe
@@ -149,15 +144,24 @@ exports.createBet = async (req, res) => {
           details: 'Les paris ne sont possibles que pour les courses futures'
         });
       }
-    }
 
-    // Vérifier que l'utilisateur a assez de solde
-    if (user.solde < montant) {
-      return res.status(400).json({ 
-        error: 'Solde insuffisant',
-        solde_disponible: user.solde,
-        solde_demande: montant
-      });
+      // Vérifier que l'utilisateur n'a pas déjà parié sur cette course
+      const existingBetsOnRace = await User_bet.find({ user_id: userId })
+        .populate({
+          path: 'bet_id',
+          model: 'Bets'
+        });
+      
+      for (const existingBet of existingBetsOnRace) {
+        if (existingBet.bet_id && existingBet.bet_id.race_id === bet.race_id) {
+          return res.status(400).json({ 
+            error: 'Vous avez déjà parié sur cette course',
+            race_id: bet.race_id,
+            race_name: race.name,
+            existing_bet_id: existingBet._id
+          });
+        }
+      }
     }
 
     // Calculer les gains potentiels (solde * cote)
@@ -170,10 +174,6 @@ exports.createBet = async (req, res) => {
       solde: montant
     });
     await userBet.save();
-
-    // Déduire le solde de l'utilisateur
-    user.solde -= montant;
-    await user.save();
 
     await userBet.populate('user_id bet_id');
     
@@ -217,6 +217,23 @@ exports.deleteMyBet = async (req, res) => {
     await User_bet.findByIdAndDelete(betId);
     res.json({ message: 'Pari supprimé avec succès' });
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Récupérer les paris futurs de mes amis (ceux dans mes groupes)
+exports.getFriendsFutureBets = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const futureBets = await userService.getFriendsFutureBets(userId);
+    
+    res.json({
+      message: 'Paris futurs de mes amis',
+      total: futureBets.length,
+      bets: futureBets
+    });
+  } catch (error) {
+    console.error('Erreur lors de la récupération des paris des amis:', error);
     res.status(500).json({ error: error.message });
   }
 };

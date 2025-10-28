@@ -159,6 +159,22 @@ router.delete('/me/bets/:betId', authMiddleware.verifyToken, userController.dele
 
 /**
  * @swagger
+ * /api/users/me/friends/bets:
+ *   get:
+ *     summary: Récupérer les paris futurs de mes amis (ceux dans mes groupes)
+ *     tags: [Utilisateurs]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Liste des paris futurs de mes amis
+ *       401:
+ *         description: Non authentifié
+ */
+router.get('/me/friends/bets', authMiddleware.verifyToken, userController.getFriendsFutureBets);
+
+/**
+ * @swagger
  * /api/users:
  *   get:
  *     summary: Récupérer tous les utilisateurs
