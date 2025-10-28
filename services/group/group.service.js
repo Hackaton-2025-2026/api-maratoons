@@ -69,6 +69,7 @@ async function updateGroup(groupe_id, group){
 }
 
 async function deleteGroup(groupe_id){
+    await JoinGroup.deleteMany({ group_id: groupe_id.toString() });
     const group = await Group.findByIdAndDelete(groupe_id);
     return group;
 }

@@ -244,7 +244,7 @@ router.delete('/:id', groupController.deleteGroup);
 
 /**
  * @swagger
- * /api/groups/{id}:
+ * /api/groups/details/{id}:
  *  get:
  *  summary: Récupérer un groupe par ID
  *   tags: [Groupes]
