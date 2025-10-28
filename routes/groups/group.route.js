@@ -22,6 +22,31 @@ router.use(authMiddleware.verifyToken);
  */
 router.get('/', groupController.getAllGroup);
 
+
+/**
+ * @swagger
+ * /api/groups/{id}/rank:
+ *   get:
+ *     summary: Récupérer le classement des utilisateurs d'un groupe
+ *     tags: [Groupes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Classement des utilisateurs du groupe
+ *       401:
+ *         description: Non authentifié
+ *       404:
+ *         description: Groupe non trouvé
+ */
+router.get('/:id/rank', groupController.getRankUserByRank)
+
 /**
  * @swagger
  * /api/groups/{id}:

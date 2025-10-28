@@ -18,6 +18,14 @@ const getAllGroup = async (req, res) => {
     }
 }
 
+const getRankUserByRank = async (req, res) => {
+    try{
+        const listUser = await groupService.getAllUserRankByGroup(req.params.id);
+        return res.status(200).send(listUser);
+    }catch (error){
+        res.status(500).send({error: error});
+    }
+}
 
 const createGroup = async (req, res) => {
     try{
@@ -61,5 +69,6 @@ module.exports = {
     joinGroup,
     leaveGroup,
     banUser,
-    getAllGroup
+    getAllGroup,
+    getRankUserByRank
 }
