@@ -33,7 +33,26 @@ exports.getUserById = async (req, res) => {
 exports.register = async (req, res) => {
   try {
     const result = await userService.createUser(req.body);
-    res.status(201).json(result);
+    const user = result.user;
+
+    // Set token in httpOnly cookie
+    if (result.token) {
+      res.cookie('auth_token', result.token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+    }
+
+    res.status(201).json({
+      message: 'User registered successfully',
+      user: {
+        id: user._id,
+        email: user.email,
+        username: user.nom
+      }
+    });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -77,11 +96,42 @@ exports.login = async (req, res) => {
 
     if (result) {
       const token = await jwtService.createToken(user);
-      return res.status(200).json({ token })
+
+      // Set token in httpOnly cookie
+      res.cookie('auth_token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+
+      return res.status(200).json({
+        message: 'Login successful',
+        user: {
+          id: user._id,
+          email: user.email,
+          username: user.nom
+        }
+      })
     } else {
-      return res.status(200).json({ message: "password non correspondant" })
+      return res.status(401).json({ message: "password non correspondant" })
     }
 
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+exports.logout = async (req, res) => {
+  try {
+    // Clear the auth cookie
+    res.clearCookie('auth_token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    });
+
+    return res.status(200).json({ message: 'Logout successful' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

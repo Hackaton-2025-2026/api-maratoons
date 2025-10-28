@@ -85,6 +85,18 @@ router.post('/login', userController.login);
 
 /**
  * @swagger
+ * /api/users/logout:
+ *   post:
+ *     summary: Se déconnecter et supprimer le cookie JWT
+ *     tags: [Utilisateurs]
+ *     responses:
+ *       200:
+ *         description: Déconnexion réussie
+ */
+router.post('/logout', userController.logout);
+
+/**
+ * @swagger
  * /api/users/me/bets:
  *   get:
  *     summary: Récupérer mes paris personnels
