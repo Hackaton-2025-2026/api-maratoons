@@ -29,11 +29,34 @@ exports.getBetById = async (req, res) => {
 // Créer un nouveau pari
 exports.createBet = async (req, res) => {
   try {
-    const { race_id, runner_id } = req.body;
+    const { race_id, runner_id, cote, position } = req.body;
+
+    // Vérifier que les champs requis sont présents
+    if (!race_id || !runner_id || !cote) {
+      return res.status(400).json({ 
+        error: 'Champs manquants',
+        details: {
+          race_id: race_id ? 'présent' : 'manquant',
+          runner_id: runner_id ? 'présent' : 'manquant',
+          cote: cote ? 'présent' : 'manquant'
+        }
+      });
+    }
 
     // Convertir en Number si nécessaire
     const raceId = Number(race_id);
     const runnerId = Number(runner_id);
+
+    // Vérifier que la conversion s'est bien passée
+    if (isNaN(raceId) || isNaN(runnerId)) {
+      return res.status(400).json({ 
+        error: 'IDs invalides',
+        details: {
+          race_id: isNaN(raceId) ? `"${race_id}" n'est pas un nombre valide` : 'OK',
+          runner_id: isNaN(runnerId) ? `"${runner_id}" n'est pas un nombre valide` : 'OK'
+        }
+      });
+    }
 
     // Valider que race_id et runner_id existent dans l'API externe
     const validation = await validateRaceAndRunner(raceId, runnerId);
