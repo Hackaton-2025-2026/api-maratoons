@@ -8,7 +8,7 @@ const connectDB = require('./config/database');
 const userRoutes = require('./routes/user/user.route');
 const betRoutes = require('./routes/bets/bet.route');
 const groupRoutes = require('./routes/groups/group.route');
-const swaggerUi = require('swagger-ui-express');
+const redoc = require('redoc-express');
 const swaggerSpecs = require('./config/swagger');
 
 const app = express();
@@ -49,11 +49,29 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Swagger Documentation
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
+// API Documentation avec ReDoc
+app.get('/api-docs', redoc({
+  title: 'API Marathon Documentation',
+  specUrl: '/api-docs/swagger.json'
+}));
+
+// Endpoint pour servir le swagger.json
+app.get('/api-docs/swagger.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpecs);
+});
 
 // Connexion à MongoDB
-connectDB();
+// Gérer la connexion différemment selon l'environnement
+if (process.env.VERCEL) {
+  // En production Vercel, se connecter si pas déjà connecté
+  if (mongoose.connection.readyState === 0) {
+    connectDB();
+  }
+} else {
+  // En développement/local, se connecter normalement
+  connectDB();
+}
 
 // Route "/"
 app.get('/',(req, res) => {
@@ -98,6 +116,9 @@ app.use('*', (req, res) => {
   });
 });
 
+// Configuration pour Vercel (serverless)
+const serverless = require('serverless-http');
+
 const http = require('http');
 const server = http.createServer(app);
 
@@ -121,4 +142,7 @@ process.on('SIGTERM', () => {
   mongoose.connection.close();
   process.exit(0);
 });
+
+// Export pour Vercel
+module.exports.handler = serverless(app);
 

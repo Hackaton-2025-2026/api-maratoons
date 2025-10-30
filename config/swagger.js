@@ -1,4 +1,5 @@
 const swaggerJsdoc = require('swagger-jsdoc');
+const path = require('path');
 
 const options = {
   definition: {
@@ -13,12 +14,12 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:3000',
-        description: 'Serveur local',
-      },
-      {
         url: 'https://api-maratoons.vercel.app',
         description: 'Serveur Vercel (production)',
+      },
+      {
+        url: 'http://localhost:3000',
+        description: 'Serveur local',
       },
       {
         url: 'https://0cfc6f227299.ngrok-free.app',
@@ -153,7 +154,7 @@ const options = {
       },
     ],
   },
-  apis: ['./routes/**/*.js'], // Paths des fichiers contenant les annotations Swagger
+  apis: [path.join(__dirname, '../routes/**/*.js')], // Chemin absolu pour les annotations Swagger
 };
 
 const specs = swaggerJsdoc(options);
