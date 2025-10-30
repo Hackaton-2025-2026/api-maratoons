@@ -172,34 +172,34 @@ exports.generateBetsForRace = async (req, res) => {
     const today = new Date();
     const raceDate = new Date(race.startDate);
     
-    if (raceDate <= today) {
-      return res.status(400).json({ 
-        error: 'Impossible de générer des bets pour une course passée',
-        raceDate: race.startDate
-      });
-    }
+    // if (raceDate <= today) {
+    //   return res.status(400).json({ 
+    //     error: 'Impossible de générer des bets pour une course passée',
+    //     raceDate: race.startDate
+    //   });
+    // }
     
     // 3. Calculer le nombre de jours avant la course
     const daysDifference = Math.ceil((raceDate - today) / (1000 * 60 * 60 * 24));
     
     // 4. Vérifier que l'on est au moins à 3 jours de la course
     // et pas à moins de 1 jour avant
-    if (daysDifference < 3) {
-      return res.status(400).json({ 
-        error: 'Les bets doivent être créés au moins 3 jours avant la course',
-        raceDate: race.startDate,
-        daysUntilRace: daysDifference,
-        minimumDaysRequired: 3
-      });
-    }
+    // if (daysDifference < 3) {
+    //   return res.status(400).json({ 
+    //     error: 'Les bets doivent être créés au moins 3 jours avant la course',
+    //     raceDate: race.startDate,
+    //     daysUntilRace: daysDifference,
+    //     minimumDaysRequired: 3
+    //   });
+    // }
     
-    if (daysDifference === 1 || daysDifference === 0) {
-      return res.status(400).json({ 
-        error: 'Les bets ne peuvent pas être créés à moins de 1 jour de la course',
-        raceDate: race.startDate,
-        daysUntilRace: daysDifference
-      });
-    }
+    // if (daysDifference === 1 || daysDifference === 0) {
+    //   return res.status(400).json({ 
+    //     error: 'Les bets ne peuvent pas être créés à moins de 1 jour de la course',
+    //     raceDate: race.startDate,
+    //     daysUntilRace: daysDifference
+    //   });
+    // }
     
     // 5. Récupérer tous les runners de la course
     const runnersResult = await getRunnersByRace(raceId);

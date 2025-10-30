@@ -17,8 +17,8 @@ const options = {
         description: 'Serveur local',
       },
       {
-        url: 'https://0cfc6f227299.ngrok-free.app',
-        description: 'Serveur ngrok (public)',
+        url: 'https://api-maratoons.vercel.app',
+        description: 'Serveur Vercel (production)',
       },
     ],
     components: {
