@@ -2,6 +2,7 @@
 require('dotenv').config();
 
 const express = require('express');
+const serverless = require('serverless-http');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
@@ -47,23 +48,29 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Swagger Documentation
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
-
-// Connect to MongoDB (only once, Vercel caches the connection)
-let isConnected = false;
-
-const connectToDatabase = async () => {
-  if (isConnected) {
-    return;
-  }
-  try {
-    await connectDB();
-    isConnected = true;
-  } catch (error) {
-    console.error('Database connection error:', error);
+// Swagger Documentation - Configuration for Vercel
+const swaggerOptions = {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: "API Marathon Documentation",
+  explorer: true,
+  swaggerOptions: {
+    persistAuthorization: true,
+    displayRequestDuration: true
   }
 };
+
+app.get('/api-docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpecs);
+});
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs, swaggerOptions));
+
+// Connect to MongoDB (only once, Vercel caches the connection)
+// Initialize connection when module loads (cached by Vercel)
+if (!mongoose.connection.readyState) {
+  connectDB();
+}
 
 // Route "/"
 app.get('/', (req, res) => {
@@ -109,11 +116,5 @@ app.use('*', (req, res) => {
 });
 
 // Export the Express app as a serverless function
-module.exports = async (req, res) => {
-  // Connect to database on first request
-  await connectToDatabase();
-  
-  // Handle the request
-  app(req, res);
-};
+module.exports = serverless(app);
 
