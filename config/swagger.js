@@ -20,6 +20,10 @@ const options = {
         url: 'https://api-maratoons.vercel.app',
         description: 'Serveur Vercel (production)',
       },
+      {
+        url: 'https://0cfc6f227299.ngrok-free.app',
+        description: 'Serveur ngrok (public)',
+      },
     ],
     components: {
       securitySchemes: {

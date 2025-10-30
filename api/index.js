@@ -1,38 +1,35 @@
+// api/index.js - Function handler for Vercel serverless
 require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
-const connectDB = require('./config/database');
-const userRoutes = require('./routes/user/user.route');
-const betRoutes = require('./routes/bets/bet.route');
-const groupRoutes = require('./routes/groups/group.route');
+const connectDB = require('../config/database');
+const userRoutes = require('../routes/user/user.route');
+const betRoutes = require('../routes/bets/bet.route');
+const groupRoutes = require('../routes/groups/group.route');
 const swaggerUi = require('swagger-ui-express');
-const swaggerSpecs = require('./config/swagger');
+const swaggerSpecs = require('../config/swagger');
+const authMiddleware = require('../middlewares/auth.middleware');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-const authMiddleware = require('./middlewares/auth.middleware');
-const socketService = require('./services/socket/socket.service');
+
 // Middleware
-// Configure CORS to handle both with and without trailing slash
 const allowedOrigins = [
   process.env.FRONTEND_URL,
-  process.env.FRONTEND_URL?.replace(/\/$/, ''), // Remove trailing slash if present
+  process.env.FRONTEND_URL?.replace(/\/$/, ''),
   'http://localhost:5173',
   'http://localhost:5174'
 ].filter(Boolean);
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-
-    // Remove trailing slash from origin for comparison
+    
     const normalizedOrigin = origin.replace(/\/$/, '');
     const normalizedAllowed = allowedOrigins.map(o => o.replace(/\/$/, ''));
-
+    
     if (normalizedAllowed.indexOf(normalizedOrigin) !== -1) {
       callback(null, true);
     } else {
@@ -45,6 +42,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
   exposedHeaders: ['Set-Cookie']
 }));
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -52,11 +50,23 @@ app.use(express.urlencoded({ extended: true }));
 // Swagger Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 
-// Connexion à MongoDB
-connectDB();
+// Connect to MongoDB (only once, Vercel caches the connection)
+let isConnected = false;
+
+const connectToDatabase = async () => {
+  if (isConnected) {
+    return;
+  }
+  try {
+    await connectDB();
+    isConnected = true;
+  } catch (error) {
+    console.error('Database connection error:', error);
+  }
+};
 
 // Route "/"
-app.get('/',(req, res) => {
+app.get('/', (req, res) => {
   res.json({
     message: 'API Marathon - Bienvenue!',
     version: '1.0.0',
@@ -72,7 +82,7 @@ app.get('/api/health', authMiddleware.verifyToken, (req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
-      user: req.user
+    user: req.user
   });
 });
 
@@ -98,27 +108,12 @@ app.use('*', (req, res) => {
   });
 });
 
-const http = require('http');
-const server = http.createServer(app);
-
-// Only enable Socket.IO in development (not supported on Vercel serverless)
-if (process.env.NODE_ENV !== 'production') {
-  socketService.connectSocket(server);
-  console.log('🔌 Socket.IO enabled for development');
-} else {
-  console.log('⚠️ Socket.IO disabled for production (Vercel serverless)');
-}
-
-// Démarrage du serveur
-server.listen(PORT, () => {
-  console.log(`🚀 Serveur démarré sur le port ${PORT}`);
-  console.log(`📝 API disponible sur http://localhost:${PORT}`);
-});
-
-// Gestion de l'arrêt propre
-process.on('SIGTERM', () => {
-  console.log('👋 Arrêt du serveur...');
-  mongoose.connection.close();
-  process.exit(0);
-});
+// Export the Express app as a serverless function
+module.exports = async (req, res) => {
+  // Connect to database on first request
+  await connectToDatabase();
+  
+  // Handle the request
+  app(req, res);
+};
 
