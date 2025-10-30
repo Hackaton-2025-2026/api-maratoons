@@ -4,7 +4,6 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
-const connectDB = require('./config/database');
 const userRoutes = require('./routes/user/user.route');
 const betRoutes = require('./routes/bets/bet.route');
 const groupRoutes = require('./routes/groups/group.route');
@@ -61,18 +60,6 @@ app.get('/api-docs/swagger.json', (req, res) => {
   res.send(swaggerSpecs);
 });
 
-// Connexion à MongoDB
-// Gérer la connexion différemment selon l'environnement
-if (process.env.VERCEL) {
-  // En production Vercel, se connecter si pas déjà connecté
-  if (mongoose.connection.readyState === 0) {
-    connectDB();
-  }
-} else {
-  // En développement/local, se connecter normalement
-  connectDB();
-}
-
 // Route "/"
 app.get('/',(req, res) => {
   res.json({
@@ -92,6 +79,20 @@ app.get('/api/health', authMiddleware.verifyToken, (req, res) => {
     database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
       user: req.user
   });
+});
+
+// Middleware pour gérer la connexion MongoDB
+app.use(async (req, res, next) => {
+  // Si MongoDB n'est pas connecté, se connecter
+  if (mongoose.connection.readyState === 0) {
+    try {
+      await mongoose.connect(process.env.MONGODB_URI + process.env.DATABASE_NAME + '?retryWrites=true&w=majority');
+      console.log('✅ Connexion à MongoDB réussie');
+    } catch (error) {
+      console.error('❌ Erreur MongoDB:', error.message);
+    }
+  }
+  next();
 });
 
 // Routes
@@ -119,30 +120,31 @@ app.use('*', (req, res) => {
 // Configuration pour Vercel (serverless)
 const serverless = require('serverless-http');
 
-const http = require('http');
-const server = http.createServer(app);
+// Vérifier si on est sur Vercel ou en local
+if (process.env.VERCEL) {
+  // En production Vercel, exporter l'handler serverless
+  console.log('🌐 Mode Vercel serverless');
+  module.exports = serverless(app);
+} else {
+  // En local, démarrer le serveur normalement
+  const http = require('http');
+  const server = http.createServer(app);
 
-// Only enable Socket.IO in development (not supported on Vercel serverless)
-if (process.env.NODE_ENV !== 'production') {
+  // Only enable Socket.IO in development (not supported on Vercel serverless)
   socketService.connectSocket(server);
   console.log('🔌 Socket.IO enabled for development');
-} else {
-  console.log('⚠️ Socket.IO disabled for production (Vercel serverless)');
+
+  // Démarrage du serveur
+  server.listen(PORT, () => {
+    console.log(`🚀 Serveur démarré sur le port ${PORT}`);
+    console.log(`📝 API disponible sur http://localhost:${PORT}`);
+  });
+
+  // Gestion de l'arrêt propre
+  process.on('SIGTERM', () => {
+    console.log('👋 Arrêt du serveur...');
+    mongoose.connection.close();
+    process.exit(0);
+  });
 }
-
-// Démarrage du serveur
-server.listen(PORT, () => {
-  console.log(`🚀 Serveur démarré sur le port ${PORT}`);
-  console.log(`📝 API disponible sur http://localhost:${PORT}`);
-});
-
-// Gestion de l'arrêt propre
-process.on('SIGTERM', () => {
-  console.log('👋 Arrêt du serveur...');
-  mongoose.connection.close();
-  process.exit(0);
-});
-
-// Export pour Vercel
-module.exports.handler = serverless(app);
 
