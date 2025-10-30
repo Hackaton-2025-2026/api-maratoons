@@ -51,13 +51,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Swagger Documentation
-const CSS_URL = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css";
-const JS_URL = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui-standalone-preset.min.js";
-
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs, {
-  customCssUrl: CSS_URL,
-  customJs: JS_URL,
-}));
+const swaggerUiAssetPath = require.resolve('swagger-ui-dist/absolute-path.js').replace('absolute-path.js', '');
+app.use('/api-docs', express.static(swaggerUiAssetPath));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 
 // Connexion à MongoDB
 connectDB();
