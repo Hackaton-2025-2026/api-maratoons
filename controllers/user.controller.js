@@ -52,19 +52,24 @@ exports.register = async (req, res) => {
       path: '/' // Ensure cookie is available for all paths
     };
 
-    // Set token in httpOnly cookie
-    res.cookie('auth_token', token, cookieOptions);
+      // Set token in httpOnly cookie
+      res.cookie('auth_token', token, cookieOptions);
 
-    console.log('Registration successful, cookie set with options:', cookieOptions);
+      console.log('Registration successful, cookie set with options:', cookieOptions);
 
-    res.status(201).json({
-      message: 'User registered successfully',
-      user: {
-        id: user._id,
-        email: user.email,
-        username: user.nom
-      }
-    });
+      res.status(201).json({
+        message: 'User registered successfully',
+        token: token, // Return token in response for frontend to store
+        user: {
+          id: user._id,
+          email: user.email,
+          username: user.nom,
+          name: user.nom,
+          role: user.role,
+          groups: user.groups || [],
+          points: user.points || 0
+        }
+      });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -125,10 +130,15 @@ exports.login = async (req, res) => {
 
       return res.status(200).json({
         message: 'Login successful',
+        token: token, // Return token in response for frontend to store
         user: {
           id: user._id,
           email: user.email,
-          username: user.nom
+          username: user.nom,
+          name: user.nom,
+          role: user.role,
+          groups: user.groups || [],
+          points: user.points || 0
         }
       })
     } else {
